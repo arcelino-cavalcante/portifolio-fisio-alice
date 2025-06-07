@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alice Vasconcelos | Estudante de Fisioterapia</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* Estilos base e de layout */
+        :root {
+            --color-primary: #D99A9A;
+            --color-secondary: #FCE8E6;
+            --color-background: #FFFBF7;
+            --color-text-title: #374151;
+            --color-text-paragraph: #4A4A4A;
+            --color-shadow: rgba(249, 226, 224, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text-paragraph);
+        }
+
+        /* Classes de Tema */
+        .text-theme-title {
+            color: var(--color-text-title);
+        }
+
+        .text-theme-paragraph {
+            color: var(--color-text-paragraph);
+        }
+
+        .text-theme-primary {
+            color: var(--color-primary);
+        }
+
+        .bg-theme-secondary {
+            background-color: var(--color-secondary);
+        }
+
+        .border-theme-secondary {
+            border-color: var(--color-secondary);
+        }
+
+        .shadow-theme {
+            box-shadow: 0 10px 15px -3px var(--color-shadow);
+        }
+
+        .fill-theme-primary {
+            fill: var(--color-primary);
+        }
+
+        .form-checkbox-theme:checked {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .hover-text-theme-primary:hover {
+            color: var(--color-primary);
+        }
+
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-secondary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
+
+        /* Estilos para o Painel Admin */
+        #admin-panel {
+            transition: opacity 0.3s ease;
+        }
+
+        #admin-panel.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #admin-panel input[type="color"] {
+            -webkit-appearance: none;
+            width: 5rem;
+            height: 2.5rem;
+            border: none;
+            cursor: pointer;
+            background: none;
+        }
+
+        #admin-panel input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        #admin-panel input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #ccc;
+            border-radius: 0.375rem;
+        }
+    </style>
+</head>
+
+<body class="bg-creme">
+
+    <!-- O conteúdo do portfólio será renderizado aqui pelo JavaScript -->
+    <div id="portfolio-container" class="max-w-4xl mx-auto p-4 sm:p-8"></div>
+
+    <!-- Painel Administrativo (inicialmente oculto) -->
+    <div id="admin-panel"
+        class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center items-start p-4 z-50 overflow-y-auto">
+        <div id="admin-content" class="bg-white w-full max-w-3xl rounded-2xl shadow-xl p-6 relative my-10">
+            <!-- Conteúdo do admin será renderizado aqui -->
+        </div>
+    </div>
+
+
+    <script type="module">
+        // =================================================================================
+        // ESTADO INICIAL E GERENCIAMENTO DE DADOS
+        // =================================================================================
+        const ADMIN_PASSWORD = "2016160";
+
+        const defaultState = {
+            theme: {
+                primary: '#D99A9A',
+                secondary: '#FCE8E6',
+                background: '#FFFBF7',
+                textTitle: '#374151',
+                textParagraph: '#4A4A4A',
+            },
+            header: { visible: true, name: "Alice Teodosio de Vasconcelos", title: "Estudante de Fisioterapia - 3º Período", imageUrl: "imagens/perfil.jpg" },
+            about: { visible: true, text: "Apaixonada pelo poder do movimento e pela capacidade de reabilitar e transformar vidas. Desde o início da minha jornada na fisioterapia, meu objetivo é absorver cada conhecimento para, no futuro, oferecer um cuidado humano, ético e eficaz. Acredito que cada paciente é um universo único e meu maior desejo é ser uma profissional que faz a diferença." },
+            journey: {
+                visible: true, items: [
+                    { id: 1, period: "3º Período", status: "Cursando", description: "Aprofundando em anatomia palpatória, cinesiologia e biomecânica. Fase de descobertas práticas e da conexão entre teoria e função do corpo humano.", time: "Presente" },
+                    { id: 2, period: "1º e 2º Períodos", status: "Concluídos", description: "Base sólida em anatomia, fisiologia e histologia. Foi aqui que a paixão pela fisioterapia realmente floresceu, entendendo a complexidade e a beleza do corpo.", time: "Concluídos" },
+                    { id: 3, period: "Próximos Passos", status: "Futuro", description: "Ansiosa pelos estágios, pelo contato direto com pacientes e por descobrir as áreas que mais me encantarão na prática clínica.", time: "Futuro" }
+                ]
+            },
+            interests: { visible: true, items: [{ id: 1, text: "Fisioterapia Ortopédica e Traumatológica" }, { id: 2, text: "Fisioterapia Pediátrica" }, { id: 3, text: "Fisioterapia Esportiva" }, { id: 4, text: "Saúde da Mulher" }] },
+            goals: { visible: true, items: [{ id: 1, text: "Realizar uma especialização em uma das minhas áreas de interesse." }, { id: 2, text: "Participar de projetos de pesquisa e extensão na faculdade." }, { id: 3, text: "Contribuir para a comunidade através de trabalho voluntário na área." }] },
+            reports: {
+                visible: true, items: [
+                    { id: 1, title: "3º Período: Mergulho na Prática", difficulties: "Aqui Alice pode descrever um desafio, como a complexidade de conciliar os estudos teóricos de cinesiologia com a visualização prática dos movimentos.", learnings: "Neste espaço, ela pode contar sobre uma descoberta importante, como a primeira vez que conseguiu identificar uma estrutura anatômica apenas com a palpação e a satisfação que isso trouxe." },
+                    { id: 2, title: "1º e 2º Períodos: A Construção da Base", difficulties: "Um espaço para ela relatar os desafios iniciais, como o grande volume de conteúdo de anatomia e fisiologia e como ela desenvolveu métodos de estudo para superá-lo.", learnings: "Aqui ela pode falar sobre o momento em que 'a ficha caiu' e ela começou a ver o corpo humano não mais como partes isoladas, mas como um sistema integrado e fascinante." }
+                ]
+            },
+            contact: {
+                visible: true, text: "Adoraria me conectar com outros estudantes e profissionais da área. Você pode me encontrar nas redes abaixo.", links: [
+                    { id: 'linkedin', name: "LinkedIn", url: "#", icon: "ph-linkedin-logo", visible: true },
+                    { id: 'email', name: "Email", url: "mailto:email@exemplo.com", icon: "ph-envelope-simple", visible: true },
+                    { id: 'instagram', name: "Instagram", url: "#", icon: "ph-instagram-logo", visible: true },
+                ]
+            }
+        };
+
+        let state = JSON.parse(localStorage.getItem('portfolioData')) || JSON.parse(JSON.stringify(defaultState));
+        if (!state.theme) { state.theme = defaultState.theme; } // Garante que a chave theme exista
+
+        const saveState = () => localStorage.setItem('portfolioData', JSON.stringify(state));
+
+        // =================================================================================
+        // GERENCIAMENTO DO TEMA (CORES)
+        // =================================================================================
+        const applyTheme = () => {
+            const theme = state.theme;
+            const root = document.documentElement;
+
+            const hexToRgb = (hex) => {
+                let r = 0, g = 0, b = 0;
+                if (hex.length == 4) {
+                    r = parseInt(hex[1] + hex[1], 16);
+                    g = parseInt(hex[2] + hex[2], 16);
+                    b = parseInt(hex[3] + hex[3], 16);
+                } else if (hex.length == 7) {
+                    r = parseInt(hex[1] + hex[2], 16);
+                    g = parseInt(hex[3] + hex[4], 16);
+                    b = parseInt(hex[5] + hex[6], 16);
+                }
+                return `${r},${g},${b}`;
+            };
+
+            const shadowRgb = hexToRgb(theme.secondary);
+            const shadowColor = `rgba(${shadowRgb}, 0.4)`;
+
+            root.style.setProperty('--color-primary', theme.primary);
+            root.style.setProperty('--color-secondary', theme.secondary);
+            root.style.setProperty('--color-background', theme.background);
+            root.style.setProperty('--color-text-title', theme.textTitle);
+            root.style.setProperty('--color-text-paragraph', theme.textParagraph);
+            root.style.setProperty('--color-shadow', shadowColor);
+        };
+
+
+        // =================================================================================
+        // FUNÇÕES DE RENDERIZAÇÃO DO PORTFÓLIO
+        // =================================================================================
+        const portfolioContainer = document.getElementById('portfolio-container');
+
+        const renderPortfolio = () => {
+            portfolioContainer.innerHTML = `
+                ${renderHeader()}
+                ${renderAbout()}
+                ${renderJourney()}
+                ${renderInterestsAndGoals()}
+                ${renderReports()}
+                ${renderContact()}
+                ${renderFooter()}
+            `;
+            addEventListeners();
+        };
+
+        const renderHeader = () => {
+            if (!state.header.visible) return '';
+            return `
+            <header class="text-center my-12 fade-in">
+                <img src="${state.header.imageUrl}" alt="Foto de Perfil" class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto mb-6 border-4 border-white shadow-lg object-cover" onerror="this.onerror=null;this.src='https://placehold.co/150x150/FCE8E6/D99A9A?text=AV';">
+                <h1 class="text-3xl md:text-4xl font-bold text-theme-title">${state.header.name}</h1>
+                <p class="text-lg md:text-xl text-theme-primary mt-2">${state.header.title}</p>
+            </header>`;
+        };
+
+        const renderAbout = () => {
+            if (!state.about.visible) return '';
+            return `<section class="bg-white p-8 rounded-2xl shadow-theme mb-12 fade-in">
+                <h2 class="text-2xl font-bold text-theme-title mb-4 flex items-center"><i class="ph-bold ph-user-circle text-theme-primary mr-3 text-3xl"></i> Sobre Mim</h2>
+                <p class="text-theme-paragraph leading-relaxed">${state.about.text}</p>
+            </section>`;
+        }
+
+        const renderJourney = () => {
+            if (!state.journey.visible) return '';
+            const itemsHtml = state.journey.items.map(item => `
+                <div class="mb-10 ml-8">
+                    <span class="absolute flex items-center justify-center w-8 h-8 ${item.status === 'Cursando' ? 'bg-theme-secondary' : 'bg-white'} rounded-full -left-4 ring-8 ring-white">
+                        <i class="ph-bold ${item.status === 'Cursando' ? 'ph-student text-theme-primary' : 'ph-book-open text-gray-500'}"></i>
+                    </span>
+                    <h3 class="flex items-center mb-1 text-lg font-semibold text-theme-title">${item.period} 
+                        ${item.status === 'Cursando' ? `<span class="bg-theme-secondary text-theme-primary text-sm font-medium mr-2 px-2.5 py-0.5 rounded ml-3">Cursando</span>` : ''}
+                    </h3>
+                    <time class="block mb-2 text-sm font-normal leading-none text-gray-500">${item.time}</time>
+                    <p class="text-base font-normal text-theme-paragraph">${item.description}</p>
+                </div>
+            `).join('');
+            return `<section class="mb-12 fade-in">
+                <h2 class="text-2xl font-bold text-theme-title mb-8 text-center flex items-center justify-center"><i class="ph-bold ph-graduation-cap text-theme-primary mr-3 text-3xl"></i> Minha Jornada Acadêmica</h2>
+                <div class="relative border-l-2 border-theme-secondary ml-4 sm:ml-0">${itemsHtml}</div>
+            </section>`;
+        };
+
+        const renderInterestsAndGoals = () => {
+            const interestsHtml = state.interests.visible ? `<div class="bg-white p-8 rounded-2xl shadow-theme fade-in">
+                <h2 class="text-2xl font-bold text-theme-title mb-4 flex items-center"><i class="ph-bold ph-heart text-theme-primary mr-3 text-3xl"></i> Áreas de Interesse</h2>
+                <ul class="space-y-3 text-theme-paragraph">
+                    ${state.interests.items.map(item => `<li class="flex items-center"><i class="ph-fill ph-check-circle text-theme-primary mr-2"></i> ${item.text}</li>`).join('')}
+                </ul></div>` : '';
+
+            const goalsHtml = state.goals.visible ? `<div class="bg-white p-8 rounded-2xl shadow-theme fade-in">
+                <h2 class="text-2xl font-bold text-theme-title mb-4 flex items-center"><i class="ph-bold ph-flag-checkered text-theme-primary mr-3 text-3xl"></i> Objetivos Futuros</h2>
+                <ul class="space-y-3 text-theme-paragraph">
+                     ${state.goals.items.map(item => `<li class="flex items-start"><i class="ph-fill ph-star text-theme-primary mr-2 mt-1"></i> ${item.text}</li>`).join('')}
+                </ul></div>` : '';
+
+            if (!interestsHtml && !goalsHtml) return '';
+            return `<div class="grid md:grid-cols-2 gap-8 mb-12">${interestsHtml}${goalsHtml}</div>`;
+        };
+
+        const renderReports = () => {
+            if (!state.reports.visible) return '';
+            const itemsHtml = state.reports.items.map(item => `
+                <div class="bg-white p-6 rounded-2xl shadow-theme">
+                    <h3 class="font-bold text-lg text-theme-title mb-3">${item.title}</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-theme-title">Principais Dificuldades:</h4>
+                            <p class="text-theme-paragraph text-sm leading-relaxed">${item.difficulties}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-theme-title">Maiores Aprendizados:</h4>
+                            <p class="text-theme-paragraph text-sm leading-relaxed">${item.learnings}</p>
+                        </div>
+                    </div>
+                </div>`).join('');
+            return `<section class="mb-12 fade-in">
+                <h2 class="text-2xl font-bold text-theme-title mb-8 text-center flex items-center justify-center"><i class="ph-bold ph-notebook text-theme-primary mr-3 text-3xl"></i> Resumos e Relatos dos Estudos</h2>
+                <div class="space-y-8">${itemsHtml}</div>
+            </section>`;
+        };
+
+        const renderContact = () => {
+            if (!state.contact.visible) return '';
+            const linksHtml = state.contact.links.filter(link => link.visible).map(link => `
+                <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover-text-theme-primary transition-colors duration-300">
+                    <i class="ph-bold ${link.icon} text-4xl"></i><span class="sr-only">${link.name}</span>
+                </a>`).join('');
+            return `<section class="text-center bg-theme-secondary p-8 rounded-2xl fade-in">
+                <h2 class="text-2xl font-bold text-theme-title mb-4">Vamos nos Conectar?</h2>
+                <p class="text-theme-paragraph mb-6 max-w-lg mx-auto">${state.contact.text}</p>
+                <div class="flex justify-center space-x-6">${linksHtml}</div>
+            </section>`;
+        };
+
+        const renderFooter = () => `
+            <footer class="text-center py-8 text-gray-500 text-sm">
+                <p>&copy; ${new Date().getFullYear()} ${state.header.name}. Todos os direitos reservados.</p>
+                <p class="mt-2"><a href="#" id="admin-link" class="hover-text-theme-primary">Minha área</a></p>
+            </footer>`;
+
+        // =================================================================================
+        // FUNÇÕES DE RENDERIZAÇÃO DO PAINEL ADMIN
+        // =================================================================================
+        const adminContent = document.getElementById('admin-content');
+        const colorLabels = { primary: 'Cor Principal (Detalhes)', secondary: 'Cor Secundária (Fundos)', background: 'Fundo da Página', textTitle: 'Cor dos Títulos', textParagraph: 'Cor dos Textos' };
+
+        const renderAdminPanel = () => {
+            adminContent.innerHTML = `
+                <button id="close-admin" class="absolute top-4 right-4 text-gray-500 hover:text-red-500"><i class="ph-bold ph-x text-2xl"></i></button>
+                <h2 class="text-2xl font-bold mb-6 text-theme-title">Painel Administrativo</h2>
+                
+                <div id="theme-form" class="bg-gray-50 p-4 rounded-lg mb-6">
+                    <h3 class="font-bold mb-4 text-theme-title">Personalizar Cores</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                        ${Object.keys(state.theme).map(key => `
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm text-gray-600">${colorLabels[key]}</label>
+                            <input type="color" data-key="${key}" value="${state.theme[key]}">
+                        </div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg mb-6" id="section-visibility-form">
+                    <h3 class="font-bold mb-3 text-theme-title">Visibilidade das Seções</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                        ${Object.keys(defaultState).filter(k => k !== 'theme').map(key => `
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" data-section="${key}" class="form-checkbox h-4 w-4 form-checkbox-theme" ${state[key].visible ? 'checked' : ''}>
+                            <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                        </label>`).join('')}
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg mb-6" id="journey-form">
+                    <h3 class="font-bold mb-3 text-theme-title">Jornada Acadêmica</h3>
+                    ${state.journey.items.map(item => `<div class="p-3 border rounded-md mb-2 bg-white" data-id="${item.id}"><input type="text" value="${item.period}" class="w-full font-semibold border-b p-1 mb-1" data-field="period"><textarea class="w-full text-sm border-b p-1" data-field="description">${item.description}</textarea><button data-action="delete-journey" class="text-red-500 text-xs mt-1 hover:underline">Remover</button></div>`).join('')}
+                    <button data-action="add-journey" class="mt-2 text-sm bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600">+ Adicionar Período</button>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg mb-6" id="interests-form">
+                    <h3 class="font-bold mb-3 text-theme-title">Áreas de Interesse</h3>
+                    ${state.interests.items.map(item => `<div class="flex items-center mb-2" data-id="${item.id}"><input type="text" value="${item.text}" class="w-full border-b p-1 text-sm" data-field="text"><button data-action="delete-interest" class="ml-2 text-red-500 hover:text-red-700"><i class="ph-bold ph-trash"></i></button></div>`).join('')}
+                    <button data-action="add-interest" class="mt-2 text-sm bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600">+ Adicionar Interesse</button>
+                </div>
+                 
+                <div class="bg-gray-50 p-4 rounded-lg mb-6" id="goals-form">
+                    <h3 class="font-bold mb-3 text-theme-title">Objetivos Futuros</h3>
+                    ${state.goals.items.map(item => `<div class="flex items-center mb-2" data-id="${item.id}"><input type="text" value="${item.text}" class="w-full border-b p-1 text-sm" data-field="text"><button data-action="delete-goal" class="ml-2 text-red-500 hover:text-red-700"><i class="ph-bold ph-trash"></i></button></div>`).join('')}
+                    <button data-action="add-goal" class="mt-2 text-sm bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600">+ Adicionar Objetivo</button>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg mb-6" id="reports-form">
+                     <h3 class="font-bold mb-3 text-theme-title">Resumos e Relatos</h3>
+                    ${state.reports.items.map(item => `<div class="p-3 border rounded-md mb-2 bg-white" data-id="${item.id}"><input type="text" value="${item.title}" class="w-full font-semibold border-b p-1 mb-1" data-field="title"><h4 class="text-xs font-bold mt-2">Dificuldades:</h4><textarea class="w-full text-sm border-b p-1" data-field="difficulties">${item.difficulties}</textarea><h4 class="text-xs font-bold mt-2">Aprendizados:</h4><textarea class="w-full text-sm border-b p-1" data-field="learnings">${item.learnings}</textarea><button data-action="delete-report" class="text-red-500 text-xs mt-1 hover:underline">Remover</button></div>`).join('')}
+                    <button data-action="add-report" class="mt-2 text-sm bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600">+ Adicionar Relato</button>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg mb-6" id="socials-form">
+                    <h3 class="font-bold mb-3 text-theme-title">Links Sociais</h3>
+                    ${state.contact.links.map(link => `<div class="grid grid-cols-[auto_1fr_auto] gap-3 items-center mb-2" data-id="${link.id}"><label class="flex items-center space-x-2"><input type="checkbox" data-field="visible" class="form-checkbox h-4 w-4 form-checkbox-theme" ${link.visible ? 'checked' : ''}><i class="ph-bold ${link.icon} text-xl"></i></label><input type="text" value="${link.url}" class="w-full border-b p-1 text-sm" data-field="url"></div>`).join('')}
+                </div>
+
+                <button id="save-all" class="w-full bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-opacity-80 font-bold">Salvar e Fechar</button>
+            `;
+            addAdminEventListeners();
+        }
+
+        // =================================================================================
+        // LÓGICA DO PAINEL ADMIN E MANIPULAÇÃO DE EVENTOS
+        // =================================================================================
+        const adminPanel = document.getElementById('admin-panel');
+        let isAuthenticated = false;
+
+        const openAdminPanel = () => {
+            if (!isAuthenticated) {
+                const pass = prompt("Digite a senha para acessar o painel:");
+                if (pass !== ADMIN_PASSWORD) { alert("Senha incorreta!"); return; }
+                isAuthenticated = true;
+            }
+            renderAdminPanel();
+            adminPanel.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeAdminPanel = () => {
+            saveState();
+            adminPanel.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            renderPortfolio();
+        };
+
+        const addEventListeners = () => {
+            document.getElementById('admin-link').addEventListener('click', e => { e.preventDefault(); openAdminPanel(); });
+        };
+
+        function addAdminEventListeners() {
+            document.getElementById('close-admin').addEventListener('click', closeAdminPanel);
+            document.getElementById('save-all').addEventListener('click', closeAdminPanel);
+
+            adminContent.addEventListener('input', e => {
+                const target = e.target;
+                const formSection = target.closest('[id$="-form"]');
+                if (!formSection) return;
+
+                const id = target.closest('[data-id]')?.dataset.id;
+                const field = target.dataset.field;
+                const key = target.dataset.key;
+
+                if (formSection.id === "theme-form" && key) { state.theme[key] = target.value; applyTheme(); }
+                if (formSection.id === "journey-form" && id) { state.journey.items.find(i => i.id == id)[field] = target.value; }
+                if (formSection.id === "interests-form" && id) { state.interests.items.find(i => i.id == id)[field] = target.value; }
+                if (formSection.id === "goals-form" && id) { state.goals.items.find(i => i.id == id)[field] = target.value; }
+                if (formSection.id === "reports-form" && id) { state.reports.items.find(i => i.id == id)[field] = target.value; }
+                if (formSection.id === "socials-form" && id) { state.contact.links.find(i => i.id == id)[field] = target.type === 'checkbox' ? target.checked : target.value; }
+                if (formSection.id === "section-visibility-form") { const section = e.target.dataset.section; if (state[section]) state[section].visible = e.target.checked; }
+            });
+
+            adminContent.addEventListener('click', e => {
+                const button = e.target.closest('button');
+                if (!button) return;
+                const action = button.dataset.action;
+                const id = button.closest('[data-id]')?.dataset.id;
+
+                const actions = {
+                    "delete-journey": () => state.journey.items = state.journey.items.filter(i => i.id != id),
+                    "add-journey": () => state.journey.items.push({ id: Date.now(), period: "Novo Período", description: "Descrição...", status: "Status", time: "Data" }),
+                    "delete-interest": () => state.interests.items = state.interests.items.filter(i => i.id != id),
+                    "add-interest": () => state.interests.items.push({ id: Date.now(), text: "Novo interesse..." }),
+                    "delete-goal": () => state.goals.items = state.goals.items.filter(i => i.id != id),
+                    "add-goal": () => state.goals.items.push({ id: Date.now(), text: "Novo objetivo..." }),
+                    "delete-report": () => state.reports.items = state.reports.items.filter(i => i.id != id),
+                    "add-report": () => state.reports.items.push({ id: Date.now(), title: "Novo Relato", difficulties: "Dificuldades...", learnings: "Aprendizados..." }),
+                };
+
+                if (actions[action]) { actions[action](); renderAdminPanel(); }
+            });
+        }
+
+        // =================================================================================
+        // INICIALIZAÇÃO
+        // =================================================================================
+        applyTheme();
+        renderPortfolio();
+    </script>
+
+</body>
+
+</html>
