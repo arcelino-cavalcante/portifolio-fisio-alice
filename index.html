@@ -154,9 +154,9 @@
         // =================================================================================
         // ESTADO INICIAL E GERENCIAMENTO DE DADOS
         // =================================================================================
-        const ADMIN_PASSWORD = "2016160";
 
         const defaultState = {
+            adminPassword: "2016160",
             theme: {
                 primary: '#D99A9A',
                 secondary: '#FCE8E6',
@@ -192,6 +192,7 @@
 
         let state = JSON.parse(localStorage.getItem('portfolioData')) || JSON.parse(JSON.stringify(defaultState));
         if (!state.theme) { state.theme = defaultState.theme; }
+        if (!state.adminPassword) { state.adminPassword = defaultState.adminPassword; }
 
         const saveState = () => localStorage.setItem('portfolioData', JSON.stringify(state));
 
@@ -205,13 +206,9 @@
             const hexToRgb = (hex) => {
                 let r = 0, g = 0, b = 0;
                 if (hex.length == 4) {
-                    r = parseInt(hex[1] + hex[1], 16);
-                    g = parseInt(hex[2] + hex[2], 16);
-                    b = parseInt(hex[3] + hex[3], 16);
+                    r = parseInt(hex[1] + hex[1], 16); g = parseInt(hex[2] + hex[2], 16); b = parseInt(hex[3] + hex[3], 16);
                 } else if (hex.length == 7) {
-                    r = parseInt(hex[1] + hex[2], 16);
-                    g = parseInt(hex[3] + hex[4], 16);
-                    b = parseInt(hex[5] + hex[6], 16);
+                    r = parseInt(hex[1] + hex[2], 16); g = parseInt(hex[3] + hex[4], 16); b = parseInt(hex[5] + hex[6], 16);
                 }
                 return `${r},${g},${b}`;
             };
@@ -248,8 +245,7 @@
 
         const renderHeader = () => {
             if (!state.header.visible) return '';
-            return `
-            <header class="text-center my-12 fade-in">
+            return `<header class="text-center my-12 fade-in">
                 <img src="${state.header.imageUrl}" alt="Foto de Perfil" class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto mb-6 border-4 border-white shadow-lg object-cover" onerror="this.onerror=null;this.src='https://placehold.co/150x150/FCE8E6/D99A9A?text=AV';">
                 <h1 class="text-3xl md:text-4xl font-bold text-theme-title">${state.header.name}</h1>
                 <p class="text-lg md:text-xl text-theme-primary mt-2">${state.header.title}</p>
@@ -303,37 +299,19 @@
 
         const renderReports = () => {
             if (!state.reports.visible) return '';
-            const itemsHtml = state.reports.items.map(item => `
-                <div class="bg-white p-6 rounded-2xl shadow-theme">
-                    <h3 class="font-bold text-lg text-theme-title mb-3">${item.title}</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="font-semibold text-theme-title">Principais Dificuldades:</h4>
-                            <p class="text-theme-paragraph text-sm leading-relaxed">${item.difficulties}</p>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-theme-title">Maiores Aprendizados:</h4>
-                            <p class="text-theme-paragraph text-sm leading-relaxed">${item.learnings}</p>
-                        </div>
-                    </div>
-                </div>`).join('');
+            const itemsHtml = state.reports.items.map(item => `<div class="bg-white p-6 rounded-2xl shadow-theme"><h3 class="font-bold text-lg text-theme-title mb-3">${item.title}</h3><div class="space-y-4"><div><h4 class="font-semibold text-theme-title">Principais Dificuldades:</h4><p class="text-theme-paragraph text-sm leading-relaxed">${item.difficulties}</p></div><div><h4 class="font-semibold text-theme-title">Maiores Aprendizados:</h4><p class="text-theme-paragraph text-sm leading-relaxed">${item.learnings}</p></div></div></div>`).join('');
             return `<section class="mb-12 fade-in">
                 <h2 class="text-2xl font-bold text-theme-title mb-8 text-center flex items-center justify-center"><i class="ph-bold ph-notebook text-theme-primary mr-3 text-3xl"></i> Resumos e Relatos dos Estudos</h2>
-                <div class="space-y-8">${itemsHtml}</div>
-            </section>`;
+                <div class="space-y-8">${itemsHtml}</div></section>`;
         };
 
         const renderContact = () => {
             if (!state.contact.visible) return '';
-            const linksHtml = state.contact.links.filter(link => link.visible).map(link => `
-                <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover-text-theme-primary transition-colors duration-300">
-                    <i class="ph-bold ${link.icon} text-4xl"></i><span class="sr-only">${link.name}</span>
-                </a>`).join('');
+            const linksHtml = state.contact.links.filter(link => link.visible).map(link => `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover-text-theme-primary transition-colors duration-300"><i class="ph-bold ${link.icon} text-4xl"></i><span class="sr-only">${link.name}</span></a>`).join('');
             return `<section class="text-center bg-theme-secondary p-8 rounded-2xl fade-in">
                 <h2 class="text-2xl font-bold text-theme-title mb-4">Vamos nos Conectar?</h2>
                 <p class="text-theme-paragraph mb-6 max-w-lg mx-auto">${state.contact.text}</p>
-                <div class="flex justify-center space-x-6">${linksHtml}</div>
-            </section>`;
+                <div class="flex justify-center space-x-6">${linksHtml}</div></section>`;
         };
 
         const renderFooter = () => `
@@ -356,40 +334,33 @@
                 <div id="general-info-form" class="bg-gray-50 p-4 rounded-lg mb-6">
                     <h3 class="font-bold mb-4 text-theme-title">Informações Principais</h3>
                     <div class="space-y-3">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Título Principal (Nome)</label>
-                            <input type="text" id="edit-header-name" value="${state.header.name}" class="w-full border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Subtítulo</label>
-                            <input type="text" id="edit-header-title" value="${state.header.title}" class="w-full border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Texto "Sobre Mim"</label>
-                            <textarea id="edit-about-text" rows="4" class="w-full border-gray-300 rounded-md shadow-sm p-2">${state.about.text}</textarea>
-                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Título Principal (Nome)</label><input type="text" id="edit-header-name" value="${state.header.name}" class="w-full border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Subtítulo</label><input type="text" id="edit-header-title" value="${state.header.title}" class="w-full border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Texto "Sobre Mim"</label><textarea id="edit-about-text" rows="4" class="w-full border-gray-300 rounded-md shadow-sm p-2">${state.about.text}</textarea></div>
+                    </div>
+                </div>
+                
+                <div id="password-form" class="bg-gray-50 p-4 rounded-lg mb-6">
+                    <h3 class="font-bold mb-4 text-theme-title">Alterar Senha</h3>
+                    <div class="space-y-3">
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Nova Senha</label><input type="password" id="new-password" placeholder="Digite a nova senha" class="w-full border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Nova Senha</label><input type="password" id="confirm-password" placeholder="Confirme a nova senha" class="w-full border-gray-300 rounded-md shadow-sm p-2"></div>
+                        <button id="save-password-btn" class="text-sm bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600">Salvar Nova Senha</button>
+                        <p id="password-message" class="text-xs mt-2"></p>
                     </div>
                 </div>
 
                 <div id="theme-form" class="bg-gray-50 p-4 rounded-lg mb-6">
                     <h3 class="font-bold mb-4 text-theme-title">Personalizar Cores</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                        ${Object.keys(state.theme).map(key => `
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm text-gray-600">${colorLabels[key]}</label>
-                            <input type="color" data-key="${key}" value="${state.theme[key]}">
-                        </div>`).join('')}
+                        ${Object.keys(state.theme).map(key => `<div class="flex items-center justify-between"><label class="text-sm text-gray-600">${colorLabels[key]}</label><input type="color" data-key="${key}" value="${state.theme[key]}"></div>`).join('')}
                     </div>
                 </div>
 
                 <div class="bg-gray-50 p-4 rounded-lg mb-6" id="section-visibility-form">
                     <h3 class="font-bold mb-3 text-theme-title">Visibilidade das Seções</h3>
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                        ${Object.keys(defaultState).filter(k => k !== 'theme').map(key => `
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" data-section="${key}" class="form-checkbox h-4 w-4 form-checkbox-theme" ${state[key].visible ? 'checked' : ''}>
-                            <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                        </label>`).join('')}
+                        ${Object.keys(defaultState).filter(k => !['theme', 'adminPassword'].includes(k)).map(key => `<label class="flex items-center space-x-2"><input type="checkbox" data-section="${key}" class="form-checkbox h-4 w-4 form-checkbox-theme" ${state[key].visible ? 'checked' : ''}><span>${key.charAt(0).toUpperCase() + key.slice(1)}</span></label>`).join('')}
                     </div>
                 </div>
 
@@ -422,7 +393,7 @@
                     ${state.contact.links.map(link => `<div class="grid grid-cols-[auto_1fr_auto] gap-3 items-center mb-2" data-id="${link.id}"><label class="flex items-center space-x-2"><input type="checkbox" data-field="visible" class="form-checkbox h-4 w-4 form-checkbox-theme" ${link.visible ? 'checked' : ''}><i class="ph-bold ${link.icon} text-xl"></i></label><input type="text" value="${link.url}" class="w-full border-b p-1 text-sm" data-field="url"></div>`).join('')}
                 </div>
 
-                <button id="save-all" class="w-full bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-opacity-80 font-bold">Salvar e Fechar</button>
+                <button id="save-all" class="w-full bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-opacity-80 font-bold">Salvar Todas as Alterações e Fechar</button>
             `;
             addAdminEventListeners();
         }
@@ -436,7 +407,7 @@
         const openAdminPanel = () => {
             if (!isAuthenticated) {
                 const pass = prompt("Digite a senha para acessar o painel:");
-                if (pass !== ADMIN_PASSWORD) { alert("Senha incorreta!"); return; }
+                if (pass !== state.adminPassword) { alert("Senha incorreta!"); return; }
                 isAuthenticated = true;
             }
             renderAdminPanel();
@@ -487,6 +458,25 @@
             adminContent.addEventListener('click', e => {
                 const button = e.target.closest('button');
                 if (!button) return;
+
+                if (button.id === 'save-password-btn') {
+                    const newPass = document.getElementById('new-password');
+                    const confirmPass = document.getElementById('confirm-password');
+                    const message = document.getElementById('password-message');
+                    if (newPass.value && newPass.value === confirmPass.value) {
+                        state.adminPassword = newPass.value;
+                        message.textContent = 'Senha alterada com sucesso!';
+                        message.style.color = 'green';
+                        newPass.value = '';
+                        confirmPass.value = '';
+                    } else {
+                        message.textContent = 'As senhas não conferem ou estão em branco.';
+                        message.style.color = 'red';
+                    }
+                    setTimeout(() => message.textContent = '', 3000);
+                    return;
+                }
+
                 const action = button.dataset.action;
                 const id = button.closest('[data-id]')?.dataset.id;
 
